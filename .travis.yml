@@ -6,5 +6,6 @@ rust:
   - beta
 script:
   - cargo run --verbose
+  - cargo test --verbose
 notifications:
   webhooks: http://webhook.hakatashi.com/travis

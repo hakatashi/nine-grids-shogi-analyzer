@@ -1,13 +1,14 @@
 extern crate integer_sqrt;
 
-use integer_sqrt::IntegerSquareRoot;
+use self::integer_sqrt::IntegerSquareRoot;
 
 // ある駒についての先手後手の持ち駒の数を表す
+#[derive(PartialEq, Eq, Debug)]
 pub struct HandInfo {
     // 先手
-    first: u8,
+    pub first: u8,
     // 後手
-    second: u8,
+    pub second: u8,
 }
 
 // 例えばサイズ n (= max_pieces + 1) = 3 に対して
