@@ -6,3 +6,4 @@ authors = ["Koki Takahashi <hakatasiloving@gmail.com>"]
 [dependencies]
 
 fnv = "^1.0.6"
+integer-sqrt = "^0.1.0"
