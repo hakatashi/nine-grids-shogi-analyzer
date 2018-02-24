@@ -1,25 +1,22 @@
 #![feature(non_ascii_idents)]
 
 extern crate integer_sqrt;
-#[macro_use] extern crate enum_primitive;
 
 use std::vec::Vec;
 
 mod util;
 
-enum_from_primitive! {
-    #[derive(Clone, Copy, PartialEq, Eq, Debug)]
-    enum Piece {
-        Empty,
-        王将,
-        飛車,
-        角行,
-        金将,
-        銀将,
-        桂馬,
-        香車,
-        歩兵,
-    }
+#[derive(Clone, Copy, PartialEq, Eq, Debug)]
+enum Piece {
+    Empty,
+    王将,
+    飛車,
+    角行,
+    金将,
+    銀将,
+    桂馬,
+    香車,
+    歩兵,
 }
 
 impl Piece {

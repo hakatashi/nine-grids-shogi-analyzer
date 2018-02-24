@@ -7,4 +7,3 @@ authors = ["Koki Takahashi <hakatasiloving@gmail.com>"]
 
 fnv = "^1.0.6"
 integer-sqrt = "^0.1.0"
-enum_primitive = "^0.1.1"
