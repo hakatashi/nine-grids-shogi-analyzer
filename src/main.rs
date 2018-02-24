@@ -46,6 +46,24 @@ struct Grid {
     promoted: bool,
 }
 
+impl Grid {
+    fn to_i(&self) -> u8 {
+        let piece: u8 = match self.piece {
+            Piece::Empty => 0,
+            Piece::王将 => 1,
+            Piece::飛車 => 2,
+            Piece::角行 => 4,
+            Piece::金将 => 6,
+            Piece::銀将 => 7,
+            Piece::桂馬 => 9,
+            Piece::香車 => 11,
+            Piece::歩兵 => 13,
+        };
+
+        return piece + self.promoted as u8 + 14 * self.player;
+    }
+}
+
 #[derive(Clone, Copy, PartialEq, Eq, Hash, Debug)]
 struct Board {
     // マスの状態
@@ -96,6 +114,14 @@ impl Board {
             28 => Grid {piece: Piece::歩兵, player: 1, promoted: true},
             _ => panic!(),
         }
+    }
+
+    fn set_grid(&self, x: u8, y: u8, grid: Grid) -> Board {
+        return Board {
+            grids: (self.grids & !(0b11111 << ((y * 3 + x) * 5))) | ((grid.to_i() as u64 ) << ((y * 3 + x) * 5)),
+            hands: self.hands,
+            player: self.player,
+        };
     }
 
     fn get_hands(&self) -> BoardHandInfo {
@@ -173,4 +199,8 @@ fn main() {
     };
 
     board.print();
+
+    let board2 = board.set_grid(1, 1, Grid {piece: Piece::飛車, player: 1, promoted: false});
+
+    board2.print();
 }
