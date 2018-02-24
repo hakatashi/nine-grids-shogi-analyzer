@@ -30,6 +30,7 @@ pub fn hand_data_to_hand_info(hand_data: u8, max_pieces: u8) -> HandInfo {
     assert!(hand_data < (max_pieces + 1) * (max_pieces + 2) / 2);
     let size: u16 = (max_pieces + 1) as u16;
     let i: u16 = (2 * size + 1 - sqrt_ceil(4 * size * size + 4 * size + 1 - 8 * (hand_data as u16))) / 2;
+    #[allow(non_snake_case)]
     let N: u16 = (size * 2 - i + 1) * i / 2;
     return HandInfo {
         first: i as u8,
