@@ -1,0 +1,6 @@
+[package]
+name = "nine-grids-shogi-analyzer"
+version = "0.1.0"
+authors = ["Koki Takahashi <hakatasiloving@gmail.com>"]
+
+[dependencies]
