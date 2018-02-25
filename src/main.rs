@@ -19,6 +19,7 @@ fn main() {
     board.print();
 
     let board = board.set_grid(1, 1, Grid::Grid {piece: Piece::Piece::飛車, player: 1, promoted: false});
+    let board = board.set_grid(0, 1, Grid::Grid {piece: Piece::Piece::歩兵, player: 1, promoted: false});
 
     board.print();
 

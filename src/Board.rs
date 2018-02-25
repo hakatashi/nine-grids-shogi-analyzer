@@ -332,6 +332,21 @@ impl Board {
                             continue;
                         }
 
+                        // 二歩
+                        if piece == Piece::歩兵 {
+                            let mut flag = false;
+                            for target_y in 0..3 {
+                                let target_grid = self.get_grid(x, target_y);
+                                if target_grid.piece == Piece::歩兵 && target_grid.player == 0 {
+                                    flag = true;
+                                    break
+                                }
+                            }
+                            if flag {
+                                continue;
+                            }
+                        }
+
                         boards.push(self.set_grid(x, y, Grid {piece: piece, player: 0, promoted: false}).add_hand(0, piece, -1));
                     }
                 }
