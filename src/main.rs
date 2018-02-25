@@ -5,6 +5,7 @@ extern crate integer_sqrt;
 
 mod util;
 mod Board;
+mod BoardMap;
 mod Grid;
 mod Piece;
 

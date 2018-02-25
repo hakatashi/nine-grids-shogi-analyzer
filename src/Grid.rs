@@ -1,5 +1,38 @@
 use ::Piece::Piece;
 
+// 移動量
+#[derive(Clone, Copy, PartialEq, Eq, Debug)]
+pub struct Move {
+    pub x: i8,
+    pub y: i8,
+}
+
+const M00: Move = Move {x: -2, y: -2};
+const M01: Move = Move {x: -1, y: -2};
+const M02: Move = Move {x:  0, y: -2};
+const M03: Move = Move {x:  1, y: -2};
+const M04: Move = Move {x:  2, y: -2};
+const M10: Move = Move {x: -2, y: -1};
+const M11: Move = Move {x: -1, y: -1};
+const M12: Move = Move {x:  0, y: -1};
+const M13: Move = Move {x:  1, y: -1};
+const M14: Move = Move {x:  2, y: -1};
+const M20: Move = Move {x: -2, y:  0};
+const M21: Move = Move {x: -1, y:  0};
+// M22 will never used :)
+const M23: Move = Move {x:  1, y:  0};
+const M24: Move = Move {x:  2, y:  0};
+const M30: Move = Move {x: -2, y:  1};
+const M31: Move = Move {x: -1, y:  1};
+const M32: Move = Move {x:  0, y:  1};
+const M33: Move = Move {x:  1, y:  1};
+const M34: Move = Move {x:  2, y:  1};
+const M40: Move = Move {x: -2, y:  2};
+const M41: Move = Move {x: -1, y:  2};
+const M42: Move = Move {x:  0, y:  2};
+const M43: Move = Move {x:  1, y:  2};
+const M44: Move = Move {x:  2, y:  2};
+
 // マス
 #[derive(Clone, Copy, PartialEq, Eq, Debug)]
 pub struct Grid {
@@ -62,5 +95,163 @@ impl Grid {
         };
 
         piece + self.promoted as u8 + 14 * self.player
+    }
+
+    pub fn get_moves(&self) -> Vec<Move> {
+        /*
+           ○○○
+           ○金○
+             ○
+         */
+        let 金将Moves = vec![
+                 M11, M12, M13,
+                 M21,      M23,
+                      M32,
+        ];
+
+        match self.piece {
+            Piece::Empty => vec![],
+            Piece::王将 => {
+                assert!(self.promoted == false);
+                /*
+                   ○○○
+                   ○王○
+                   ○○○
+                 */
+                vec![
+                         M11, M12, M13,
+                         M21,      M23,
+                         M31, M32, M33,
+                ]
+            },
+            Piece::飛車 => {
+                if !self.promoted {
+                    /*
+                         ○
+                         ○
+                     ○○飛○○
+                         ○
+                         ○
+                     */
+                    vec![
+                                  M02,
+                                  M12,
+                        M20, M21,      M23, M24,
+                                  M32,
+                                  M32,
+                    ]
+                } else {
+                    /*
+                         ○
+                       ○○○
+                     ○○龍○○
+                       ○○○
+                         ○
+                     */
+                    vec![
+                                  M02,
+                             M11, M12, M13,
+                        M20, M21,      M23, M24,
+                             M31, M32, M33,
+                                  M32,
+                    ]
+                }
+            },
+            Piece::角行 => {
+                if !self.promoted {
+                    /*
+                     ○      ○
+                       ○  ○
+                         角
+                       ○  ○
+                     ○      ○
+                     */
+                    vec![
+                        M00,                M04,
+                             M11,      M13,
+
+                             M31,      M33,
+                        M40,                M44,
+                    ]
+                } else {
+                    /*
+                     ○      ○
+                       ○○○
+                       ○馬○
+                       ○○○
+                     ○      ○
+                     */
+                    vec![
+                        M00,                M04,
+                             M11, M12, M13,
+                             M21,      M23,
+                             M31, M32, M33,
+                        M40,                M44,
+                    ]
+                }
+            },
+            Piece::金将 => {
+                assert!(self.promoted == false);
+                金将Moves
+            },
+            Piece::銀将 => {
+                if !self.promoted {
+                    /*
+                       ○○○
+                         銀
+                       ○  ○
+                     */
+                    vec![
+                             M11, M12, M13,
+
+                             M31,      M33,
+                    ]
+                } else {
+                    金将Moves
+                }
+            },
+            Piece::桂馬 => {
+                if !self.promoted {
+                    /*
+                       ○  ○
+
+                         桂
+                     */
+                    vec![
+                             M01,      M03,
+                    ]
+                } else {
+                    金将Moves
+                }
+            },
+            Piece::香車 => {
+                if !self.promoted {
+                    /*
+                         ○
+                         ○
+                         香
+                     */
+                    vec![
+                                  M02,
+                                  M12,
+                    ]
+                } else {
+                    金将Moves
+                }
+            },
+            Piece::歩兵 => {
+                if !self.promoted {
+                    /*
+                         ○
+                         歩
+                     */
+                    vec![
+                                  M12,
+                    ]
+                } else {
+                    金将Moves
+                }
+            },
+        }
     }
 }
