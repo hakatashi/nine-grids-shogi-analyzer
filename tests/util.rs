@@ -1,9 +1,22 @@
 extern crate nine_grids_shogi_analyzer;
 
-use nine_grids_shogi_analyzer::util::{hand_data_to_hand_info, HandInfo};
+use nine_grids_shogi_analyzer::util::{sqrt_ceil, hand_data_to_hand_info, HandInfo};
 
 #[test]
-fn it_works() {
+fn sqrt_ceil_test() {
+    assert_eq!(sqrt_ceil(0), 0);
+    assert_eq!(sqrt_ceil(1), 1);
+    assert_eq!(sqrt_ceil(2), 2);
+    assert_eq!(sqrt_ceil(3), 2);
+    assert_eq!(sqrt_ceil(4), 2);
+    assert_eq!(sqrt_ceil(5), 3);
+    assert_eq!(sqrt_ceil(6), 3);
+    assert_eq!(sqrt_ceil(7), 3);
+    assert_eq!(sqrt_ceil(65535), 256);
+}
+
+#[test]
+fn hand_data_to_hand_info_test() {
     assert_eq!(hand_data_to_hand_info(0, 2), HandInfo {first: 0, second: 0});
     assert_eq!(hand_data_to_hand_info(1, 2), HandInfo {first: 0, second: 1});
     assert_eq!(hand_data_to_hand_info(2, 2), HandInfo {first: 0, second: 2});

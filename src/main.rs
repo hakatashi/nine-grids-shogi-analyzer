@@ -1,4 +1,5 @@
 #![feature(non_ascii_idents)]
+#![allow(non_snake_case)]
 
 extern crate integer_sqrt;
 
@@ -16,7 +17,11 @@ fn main() {
 
     board.print();
 
-    let board2 = board.set_grid(1, 1, Grid::Grid {piece: Piece::Piece::飛車, player: 1, promoted: false});
+    let board = board.set_grid(1, 1, Grid::Grid {piece: Piece::Piece::飛車, player: 1, promoted: false});
 
-    board2.print();
+    board.print();
+
+    let board = board.del_grid(2, 2);
+
+    board.print();
 }

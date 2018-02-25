@@ -11,7 +11,7 @@ pub struct HandInfo {
     pub second: u8,
 }
 
-fn sqrt_ceil(n: u16) -> u16 {
+pub fn sqrt_ceil(n: u16) -> u16 {
     let sqrt_floor = n.integer_sqrt();
     if sqrt_floor * sqrt_floor == n {
         return sqrt_floor;

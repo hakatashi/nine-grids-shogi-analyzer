@@ -1,4 +1,5 @@
 #![feature(non_ascii_idents)]
+#![allow(non_snake_case)]
 
 pub mod util;
 pub mod Board;

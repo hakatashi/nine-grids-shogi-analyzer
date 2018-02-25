@@ -63,6 +63,10 @@ impl Board {
         };
     }
 
+    pub fn del_grid(&self, x: u8, y: u8) -> Board {
+        return self.set_grid(x, y, Grid {piece: Piece::Empty, player: 0, promoted: false});
+    }
+
     fn get_hands(&self) -> BoardHandInfo {
         let mut hands = BoardHandInfo {
             first: Vec::with_capacity(27),
@@ -110,11 +114,7 @@ impl Board {
 
     pub fn print(&self) {
         for y in 0..3 {
-            match y {
-                0 => println!("┌───┬───┬───┐"),
-                1 | 2 => println!("├───┼───┼───┤"),
-                _ => panic!(),
-            }
+            println!("────────────────");
 
             for x in 0..3 {
                 let grid = self.get_grid(x, y);
@@ -124,7 +124,7 @@ impl Board {
             println!("│");
         }
 
-        println!("└───┴───┴───┘");
+        println!("────────────────");
 
         println!("{:?}", self.get_hands());
     }
