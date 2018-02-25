@@ -1,1 +1,0 @@
-# 9masu-shogi-master
