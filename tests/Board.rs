@@ -9,9 +9,9 @@ use nine_grids_shogi_analyzer::Grid::{Grid};
 #[test]
 fn board_get_possible_moves_test() {
     /*
-     * □□□
-     * □□□
-     * □王□
+     * □ □ □
+     * □ □ □
+     * □ 王 □
      */
     let board = Board {grids: 0, hands: 0, player: true};
     let board = board.set_grid(1, 2, Grid {piece: Piece::王将, player: 0, promoted: false});

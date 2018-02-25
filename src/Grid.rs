@@ -101,6 +101,38 @@ impl Grid {
         piece + self.promoted as u8 + 14 * self.player
     }
 
+    pub fn to_string(&self) -> String {
+        let piece = if !self.promoted {
+            match self.piece {
+                Piece::Empty => "□",
+                Piece::王将 => "王",
+                Piece::飛車 => "飛",
+                Piece::角行 => "角",
+                Piece::金将 => "金",
+                Piece::銀将 => "銀",
+                Piece::桂馬 => "桂",
+                Piece::香車 => "香",
+                Piece::歩兵 => "歩",
+            }
+        } else {
+            match self.piece {
+                Piece::Empty | Piece::王将 | Piece::金将 => panic!(),
+                Piece::飛車 => "龍",
+                Piece::角行 => "馬",
+                Piece::銀将 => "全",
+                Piece::桂馬 => "圭",
+                Piece::香車 => "杏",
+                Piece::歩兵 => "と",
+            }
+        };
+
+        if self.player == 0 {
+            format!("{} ", piece)
+        } else {
+            format!("{}v", piece)
+        }
+    }
+
     fn get_raw_moves(&self) -> Vec<Move> {
         /*
            ○○○

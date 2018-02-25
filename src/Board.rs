@@ -251,17 +251,13 @@ impl Board {
 
     pub fn print(&self) {
         for y in 0..3 {
-            println!("────────────────");
-
             for x in 0..3 {
                 let grid = self.get_grid(x, y);
-                print!("│{}{}{}", if grid.promoted {"!"} else {" "}, grid.piece.to_char(), if grid.player == 0 {"^"} else {"v"});
+                print!("{}", grid.to_string());
             }
 
-            println!("│");
+            println!("");
         }
-
-        println!("────────────────");
 
         let hands = self.get_hands();
 
