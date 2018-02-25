@@ -77,6 +77,10 @@ impl Grid {
         }
     }
 
+    pub fn is_promotable(&self) -> bool {
+        self.piece != Piece::Empty && self.piece != Piece::王将 && self.piece != Piece::金将 && !self.promoted
+    }
+
     pub fn to_i(&self) -> u8 {
         if self.piece == Piece::Empty {
             return 0;
@@ -97,7 +101,7 @@ impl Grid {
         piece + self.promoted as u8 + 14 * self.player
     }
 
-    pub fn get_moves(&self) -> Vec<Move> {
+    fn get_raw_moves(&self) -> Vec<Move> {
         /*
            ○○○
            ○金○
@@ -138,7 +142,7 @@ impl Grid {
                                   M12,
                         M20, M21,      M23, M24,
                                   M32,
-                                  M32,
+                                  M42,
                     ]
                 } else {
                     /*
@@ -153,7 +157,7 @@ impl Grid {
                              M11, M12, M13,
                         M20, M21,      M23, M24,
                              M31, M32, M33,
-                                  M32,
+                                  M42,
                     ]
                 }
             },
@@ -252,6 +256,15 @@ impl Grid {
                     金将Moves
                 }
             },
+        }
+    }
+
+    pub fn get_moves(&self) -> Vec<Move> {
+        let raw_moves = self.get_raw_moves();
+        if self.player == 0 {
+            raw_moves
+        } else {
+            raw_moves.iter().map(|&m| Move {x: -m.x, y: -m.y}).collect::<Vec<_>>()
         }
     }
 }

@@ -19,12 +19,29 @@ struct BoardHandInfo {
     second: Vec<u8>,
 }
 
+// 座標
+#[derive(PartialEq, Eq, Debug)]
+pub struct Coord {
+    pub x: u8,
+    pub y: u8,
+}
+
+#[derive(PartialEq, Eq, Debug)]
+pub struct PieceMove {
+    pub piece: Piece,
+    pub from: Coord,
+    pub to: Coord,
+    pub promote: bool,
+}
+
 impl Board {
     fn get_grid(&self, x: u8, y: u8) -> Grid {
+        assert!(x < 3 && y < 3);
         Grid::from_i(((self.grids >> ((y * 3 + x) * 5)) & 0b11111) as u8)
     }
 
     pub fn set_grid(&self, x: u8, y: u8, grid: Grid) -> Board {
+        assert!(x < 3 && y < 3);
         Board {
             grids: (self.grids & !(0b11111 << ((y * 3 + x) * 5))) | ((grid.to_i() as u64 ) << ((y * 3 + x) * 5)),
             hands: self.hands,
@@ -156,6 +173,68 @@ impl Board {
             hands: self.reverse_hands().hands,
             player: self.player, // player is unused currently
         }
+    }
+
+    pub fn get_possible_moves(&self) -> Vec<PieceMove> {
+        let mut moves: Vec<PieceMove> = Vec::with_capacity(128);
+
+        for y in 0..3 {
+            for x in 0..3 {
+                let grid = self.get_grid(x, y);
+
+                if grid.piece == Piece::Empty || grid.player == 1 {
+                    continue;
+                }
+
+                let piece_moves = grid.get_moves();
+
+                for piece_move in piece_moves {
+                    let target_x = x as i8 + piece_move.x;
+                    let target_y = y as i8 + piece_move.y;
+
+                    // 移動先が盤外
+                    if !(0..3).contains(target_x) || !(0..3).contains(target_y) {
+                        continue;
+                    }
+
+                    let target_grid = self.get_grid(target_x as u8, target_y as u8);
+
+                    // 移動先に自分の駒がある
+                    if target_grid.piece != Piece::Empty && target_grid.player == 0 {
+                        continue;
+                    }
+
+                    moves.push(PieceMove {
+                        from: Coord {
+                            x: x,
+                            y: y,
+                        },
+                        to: Coord {
+                            x: target_x as u8,
+                            y: target_y as u8,
+                        },
+                        piece: grid.piece,
+                        promote: false,
+                    });
+
+                    if target_y == 0 && grid.is_promotable() {
+                        moves.push(PieceMove {
+                            from: Coord {
+                                x: x,
+                                y: y,
+                            },
+                            to: Coord {
+                                x: target_x as u8,
+                                y: target_y as u8,
+                            },
+                            piece: grid.piece,
+                            promote: true,
+                        });
+                    }
+                }
+            }
+        }
+        moves
     }
 
     pub fn print(&self) {
