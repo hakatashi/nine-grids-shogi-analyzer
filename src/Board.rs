@@ -230,6 +230,14 @@ impl Board {
                     });
 
                     if target_y == 0 && grid.is_promotable() {
+                        // 行き所のない駒
+                        if target_y == 0 && (grid.piece == Piece::歩兵 || grid.piece == Piece::香車 || grid.piece == Piece::桂馬) {
+                            continue;
+                        }
+                        if target_y == 1 && grid.piece == Piece::桂馬 {
+                            continue;
+                        }
+
                         moves.push(PieceMove {
                             from: Coord {
                                 x: x,

@@ -45,7 +45,7 @@ fn board_get_possible_moves_test() {
     let board = board.set_grid(1, 2, Grid {piece: Piece::王将, player: 0, promoted: false});
     let board = board.set_grid(1, 1, Grid {piece: Piece::香車, player: 0, promoted: false});
     let moves = board.get_possible_moves();
-    assert_eq!(moves.len(), 6);
+    assert_eq!(moves.len(), 5);
 
     /*
      * □ □ □
@@ -116,5 +116,5 @@ fn board_get_possible_moves_test() {
     let board = board.set_grid(2, 1, Grid {piece: Piece::歩兵, player: 1, promoted: false});
     let board = board.set_grid(1, 2, Grid {piece: Piece::桂馬, player: 0, promoted: false});
     let moves = board.get_possible_moves();
-    assert_eq!(moves.len(), 6);
+    assert_eq!(moves.len(), 4);
 }
