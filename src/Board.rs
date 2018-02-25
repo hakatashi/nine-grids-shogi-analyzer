@@ -230,6 +230,17 @@ impl Board {
                         }
                     }
 
+                    // 行き所のない駒
+                    let force_promotion = if grid.promoted {
+                        false
+                    } else if target_y == 0 && (grid.piece == Piece::歩兵 || grid.piece == Piece::香車 || grid.piece == Piece::桂馬) {
+                        true
+                    } else if target_y == 1 && grid.piece == Piece::桂馬 {
+                        true
+                    } else {
+                        false
+                    };
+
                     moves.push(PieceMove {
                         from: Coord {
                             x: x,
@@ -240,18 +251,10 @@ impl Board {
                             y: target_y as u8,
                         },
                         piece: grid.piece,
-                        promote: grid.promoted,
+                        promote: force_promotion || grid.promoted,
                     });
 
-                    if (y == 0 || target_y == 0) && grid.is_promotable() {
-                        // 行き所のない駒
-                        if target_y == 0 && (grid.piece == Piece::歩兵 || grid.piece == Piece::香車 || grid.piece == Piece::桂馬) {
-                            continue;
-                        }
-                        if target_y == 1 && grid.piece == Piece::桂馬 {
-                            continue;
-                        }
-
+                    if !force_promotion && (y == 0 || target_y == 0) && grid.is_promotable() {
                         moves.push(PieceMove {
                             from: Coord {
                                 x: x,
@@ -305,7 +308,7 @@ impl Board {
             let new_board = self.del_grid(mov.from.x, mov.from.y).set_grid(mov.to.x, mov.to.y, Grid {piece: mov.piece, promoted: mov.promote, player: 0});
 
             if target_grid.player == 1 {
-                boards.push(new_board.add_hand(0, mov.piece, 1));
+                boards.push(new_board.add_hand(0, target_grid.piece, 1));
             } else {
                 boards.push(new_board);
             }
