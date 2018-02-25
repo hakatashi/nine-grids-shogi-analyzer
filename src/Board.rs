@@ -15,8 +15,8 @@ pub struct Board {
 
 #[derive(PartialEq, Eq, Debug)]
 struct BoardHandInfo {
-    first: Vec<Piece>,
-    second: Vec<Piece>,
+    first: Vec<u8>,
+    second: Vec<u8>,
 }
 
 impl Board {
@@ -69,8 +69,8 @@ impl Board {
 
     fn get_hands(&self) -> BoardHandInfo {
         let mut hands = BoardHandInfo {
-            first: Vec::with_capacity(27),
-            second: Vec::with_capacity(27),
+            first: Vec::with_capacity(7),
+            second: Vec::with_capacity(7),
         };
 
         let mut temp_hands = self.hands;
@@ -87,29 +87,73 @@ impl Board {
                 6 => 7,
                 _ => panic!(),
             };
-            let piece = match hand_type {
-                0 => Piece::飛車,
-                1 => Piece::角行,
-                2 => Piece::金将,
-                3 => Piece::銀将,
-                4 => Piece::桂馬,
-                5 => Piece::香車,
-                6 => Piece::歩兵,
-                _ => panic!(),
-            };
             let hand_info = util::hand_data_to_hand_info((temp_hands & ((1 << size) - 1)) as u8, max_pieces);
             temp_hands >>= size;
 
-            for _ in 0..hand_info.first {
-                hands.first.push(piece);
-            }
-
-            for _ in 0..hand_info.second {
-                hands.second.push(piece);
-            }
+            hands.first.push(hand_info.first);
+            hands.second.push(hand_info.second);
         }
 
         return hands;
+    }
+
+    fn set_hands(&self, hand_info: BoardHandInfo) -> Board {
+        let mut hands: u32 = 0;
+        let mut offset = 0;
+
+        for hand_type in 0..7 {
+            let size = match hand_type {
+                0 | 1 => 3,
+                2 | 3 | 4 | 5  => 4,
+                6 => 5,
+                _ => panic!(),
+            };
+            let max_pieces = match hand_type {
+                0 | 1 => 2,
+                2 | 3 | 4 | 5 => 3,
+                6 => 7,
+                _ => panic!(),
+            };
+            let hand_data = util::hand_info_to_hand_data(util::HandInfo {
+                first: hand_info.first[hand_type],
+                second: hand_info.second[hand_type],
+            }, max_pieces);
+
+            assert!(hand_data < (1 << size));
+
+            hands |= (hand_data as u32) << offset;
+
+            offset += size;
+        }
+
+        return Board {
+            grids: self.grids,
+            hands: hands,
+            player: self.player,
+        };
+    }
+
+    pub fn add_hand(&self, player: u8, piece: Piece) -> Board {
+        let mut hands = self.get_hands();
+
+        let piece_index = match piece {
+            Piece::飛車 => 0,
+            Piece::角行 => 1,
+            Piece::金将 => 2,
+            Piece::銀将 => 3,
+            Piece::桂馬 => 4,
+            Piece::香車 => 5,
+            Piece::歩兵 => 6,
+            _ => panic!(),
+        };
+
+        match player {
+            0 => hands.first[piece_index] += 1,
+            1 => hands.second[piece_index] += 1,
+            _ => panic!(),
+        };
+
+        return self.set_hands(hands);
     }
 
     pub fn print(&self) {
@@ -126,6 +170,62 @@ impl Board {
 
         println!("────────────────");
 
-        println!("{:?}", self.get_hands());
+        let hands = self.get_hands();
+
+        print!("☗持ち駒");
+        let mut total_count = 0;
+
+        for (i, &count) in hands.first.iter().enumerate() {
+            let piece = match i {
+                0 => Piece::飛車,
+                1 => Piece::角行,
+                2 => Piece::金将,
+                3 => Piece::銀将,
+                4 => Piece::桂馬,
+                5 => Piece::香車,
+                6 => Piece::歩兵,
+                _ => panic!(),
+            };
+
+            for _ in 0..count {
+                print!(" {}", piece.to_char());
+            }
+
+            total_count += count;
+        }
+
+        if total_count == 0 {
+            print!(" なし");
+        }
+
+        println!("");
+
+        print!("☖持ち駒");
+        let mut total_count = 0;
+
+        for (i, &count) in hands.second.iter().enumerate() {
+            let piece = match i {
+                0 => Piece::飛車,
+                1 => Piece::角行,
+                2 => Piece::金将,
+                3 => Piece::銀将,
+                4 => Piece::桂馬,
+                5 => Piece::香車,
+                6 => Piece::歩兵,
+                _ => panic!(),
+            };
+
+            for _ in 0..count {
+                print!(" {}", piece.to_char());
+            }
+
+            total_count += count;
+        }
+
+        if total_count == 0 {
+            print!(" なし");
+        }
+
+        println!("");
     }
 }

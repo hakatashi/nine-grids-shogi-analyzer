@@ -37,3 +37,9 @@ pub fn hand_data_to_hand_info(hand_data: u8, max_pieces: u8) -> HandInfo {
         second: (hand_data as u16 - N) as u8,
     };
 }
+
+pub fn hand_info_to_hand_data(hand_info: HandInfo, max_pieces: u8) -> u8 {
+    assert!(hand_info.first + hand_info.second <= max_pieces);
+    let size = max_pieces + 1;
+    return (size * 2 - hand_info.first + 1) * hand_info.first / 2 + hand_info.second;
+}
