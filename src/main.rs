@@ -28,4 +28,8 @@ fn main() {
     let board = board.add_hand(0, Piece::Piece::歩兵);
 
     board.print();
+
+    let board = board.reverse();
+
+    board.print();
 }

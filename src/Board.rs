@@ -21,50 +21,35 @@ struct BoardHandInfo {
 
 impl Board {
     fn get_grid(&self, x: u8, y: u8) -> Grid {
-        match (self.grids >> ((y * 3 + x) * 5)) & 0b11111 {
-            0 => Grid {piece: Piece::Empty, player: 0, promoted: false},
-            1 => Grid {piece: Piece::王将, player: 0, promoted: false},
-            2 => Grid {piece: Piece::飛車, player: 0, promoted: false},
-            3 => Grid {piece: Piece::飛車, player: 0, promoted: true},
-            4 => Grid {piece: Piece::角行, player: 0, promoted: false},
-            5 => Grid {piece: Piece::角行, player: 0, promoted: true},
-            6 => Grid {piece: Piece::金将, player: 0, promoted: false},
-            7 => Grid {piece: Piece::銀将, player: 0, promoted: false},
-            8 => Grid {piece: Piece::銀将, player: 0, promoted: true},
-            9 => Grid {piece: Piece::桂馬, player: 0, promoted: false},
-            10 => Grid {piece: Piece::桂馬, player: 0, promoted: true},
-            11 => Grid {piece: Piece::香車, player: 0, promoted: false},
-            12 => Grid {piece: Piece::香車, player: 0, promoted: true},
-            13 => Grid {piece: Piece::歩兵, player: 0, promoted: false},
-            14 => Grid {piece: Piece::歩兵, player: 0, promoted: true},
-            15 => Grid {piece: Piece::王将, player: 1, promoted: false},
-            16 => Grid {piece: Piece::飛車, player: 1, promoted: false},
-            17 => Grid {piece: Piece::飛車, player: 1, promoted: true},
-            18 => Grid {piece: Piece::角行, player: 1, promoted: false},
-            19 => Grid {piece: Piece::角行, player: 1, promoted: true},
-            20 => Grid {piece: Piece::金将, player: 1, promoted: false},
-            21 => Grid {piece: Piece::銀将, player: 1, promoted: false},
-            22 => Grid {piece: Piece::銀将, player: 1, promoted: true},
-            23 => Grid {piece: Piece::桂馬, player: 1, promoted: false},
-            24 => Grid {piece: Piece::桂馬, player: 1, promoted: true},
-            25 => Grid {piece: Piece::香車, player: 1, promoted: false},
-            26 => Grid {piece: Piece::香車, player: 1, promoted: true},
-            27 => Grid {piece: Piece::歩兵, player: 1, promoted: false},
-            28 => Grid {piece: Piece::歩兵, player: 1, promoted: true},
-            _ => panic!(),
-        }
+        Grid::from_i(((self.grids >> ((y * 3 + x) * 5)) & 0b11111) as u8)
     }
 
     pub fn set_grid(&self, x: u8, y: u8, grid: Grid) -> Board {
-        return Board {
+        Board {
             grids: (self.grids & !(0b11111 << ((y * 3 + x) * 5))) | ((grid.to_i() as u64 ) << ((y * 3 + x) * 5)),
             hands: self.hands,
             player: self.player,
-        };
+        }
     }
 
     pub fn del_grid(&self, x: u8, y: u8) -> Board {
-        return self.set_grid(x, y, Grid {piece: Piece::Empty, player: 0, promoted: false});
+        self.set_grid(x, y, Grid {piece: Piece::Empty, player: 0, promoted: false})
+    }
+
+    fn reverse_grids(grids: u64) -> u64 {
+        let mut new_grids: u64 = 0;
+
+        for y in 0..3 {
+            let new_y = 2 - y;
+            for x in 0..3 {
+                let new_x = 2 - x;
+                let mut grid = Grid::from_i(((grids >> ((y * 3 + x) * 5)) & 0b11111) as u8);
+                grid.player = if grid.player == 0 {1} else {0};
+                new_grids |= (grid.to_i() as u64) << ((new_y * 3 + new_x) * 5);
+            }
+        }
+
+        new_grids
     }
 
     fn get_hands(&self) -> BoardHandInfo {
@@ -94,7 +79,7 @@ impl Board {
             hands.second.push(hand_info.second);
         }
 
-        return hands;
+        hands
     }
 
     fn set_hands(&self, hand_info: BoardHandInfo) -> Board {
@@ -126,11 +111,11 @@ impl Board {
             offset += size;
         }
 
-        return Board {
+        Board {
             grids: self.grids,
             hands: hands,
             player: self.player,
-        };
+        }
     }
 
     pub fn add_hand(&self, player: u8, piece: Piece) -> Board {
@@ -153,7 +138,24 @@ impl Board {
             _ => panic!(),
         };
 
-        return self.set_hands(hands);
+        self.set_hands(hands)
+    }
+
+    fn reverse_hands(&self) -> Board {
+        let hands = self.get_hands();
+        let new_hands = BoardHandInfo {
+            first: hands.second,
+            second: hands.first,
+        };
+        self.set_hands(new_hands)
+    }
+
+    pub fn reverse(&self) -> Board {
+        Board {
+            grids: Board::reverse_grids(self.grids),
+            hands: self.reverse_hands().hands,
+            player: self.player, // player is unused currently
+        }
     }
 
     pub fn print(&self) {
