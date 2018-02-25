@@ -204,6 +204,18 @@ impl Board {
                         continue;
                     }
 
+                    // 大駒は他の駒を飛び越えられない
+                    if piece_move.x % 2 == 0 && piece_move.y % 2 == 0 {
+                        // 中間点
+                        let intermediate_x = x as i8 + piece_move.x / 2;
+                        let intermediate_y = y as i8 + piece_move.y / 2;
+                        let intermediate_grid = self.get_grid(intermediate_x as u8, intermediate_y as u8);
+
+                        if intermediate_grid.piece != Piece::Empty {
+                            continue;
+                        }
+                    }
+
                     moves.push(PieceMove {
                         from: Coord {
                             x: x,
