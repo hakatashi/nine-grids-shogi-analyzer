@@ -25,4 +25,17 @@ impl Piece {
             &Piece::歩兵 => "歩",
         }
     }
+
+    pub fn from_hand_index(i: usize) -> Piece {
+        match i {
+            0 => Piece::飛車,
+            1 => Piece::角行,
+            2 => Piece::金将,
+            3 => Piece::銀将,
+            4 => Piece::桂馬,
+            5 => Piece::香車,
+            6 => Piece::歩兵,
+            _ => panic!(),
+        }
+    }
 }

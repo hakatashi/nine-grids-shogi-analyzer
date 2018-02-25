@@ -26,7 +26,7 @@ fn main() {
 
     board.print();
 
-    let board = board.add_hand(0, Piece::Piece::歩兵);
+    let board = board.add_hand(0, Piece::Piece::歩兵, 1);
 
     board.print();
 
@@ -34,5 +34,13 @@ fn main() {
 
     board.print();
 
-    println!("{:?}", board.get_result());
+    println!("This board is: {:?}", board.get_result());
+
+    let transitions = board.get_possible_transitions();
+
+    println!("== Possible Transitions ==");
+
+    for transition in transitions {
+        transition.print();
+    }
 }

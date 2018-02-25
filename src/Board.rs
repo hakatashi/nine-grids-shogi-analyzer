@@ -38,6 +38,7 @@ pub struct PieceMove {
     pub piece: Piece,
     pub from: Coord,
     pub to: Coord,
+    // 移動後の駒が成っているかどうか (もともと成っていた場合も含む)
     pub promote: bool,
 }
 
@@ -142,7 +143,7 @@ impl Board {
         }
     }
 
-    pub fn add_hand(&self, player: u8, piece: Piece) -> Board {
+    pub fn add_hand(&self, player: u8, piece: Piece, count: i8) -> Board {
         let mut hands = self.get_hands();
 
         let piece_index = match piece {
@@ -157,8 +158,14 @@ impl Board {
         };
 
         match player {
-            0 => hands.first[piece_index] += 1,
-            1 => hands.second[piece_index] += 1,
+            0 => {
+                assert!(hands.first[piece_index] as i8 + count >= 0);
+                hands.first[piece_index] = (hands.first[piece_index] as i8 + count) as u8
+            },
+            1 => {
+                assert!(hands.second[piece_index] as i8 + count >= 0);
+                hands.second[piece_index] = (hands.second[piece_index] as i8 + count) as u8
+            },
             _ => panic!(),
         };
 
@@ -233,10 +240,10 @@ impl Board {
                             y: target_y as u8,
                         },
                         piece: grid.piece,
-                        promote: false,
+                        promote: grid.promoted,
                     });
 
-                    if target_y == 0 && grid.is_promotable() {
+                    if (y == 0 || target_y == 0) && grid.is_promotable() {
                         // 行き所のない駒
                         if target_y == 0 && (grid.piece == Piece::歩兵 || grid.piece == Piece::香車 || grid.piece == Piece::桂馬) {
                             continue;
@@ -266,9 +273,10 @@ impl Board {
 
     pub fn get_result(&self) -> BoardResult {
         let moves = self.get_possible_moves();
+        let hands = self.get_hands();
 
         // ステルスメイト
-        if moves.len() == 0 {
+        if moves.len() == 0 && hands.first.len() == 0 {
             return BoardResult::Lose;
         }
 
@@ -283,6 +291,56 @@ impl Board {
         BoardResult::Unknown
     }
 
+    pub fn get_possible_transitions(&self) -> Vec<Board> {
+        let mut boards: Vec<Board> = Vec::with_capacity(256);
+        let moves = self.get_possible_moves();
+
+        for mov in moves {
+            let target_grid = self.get_grid(mov.to.x, mov.to.y);
+
+            if target_grid.piece == Piece::王将 {
+                continue;
+            }
+
+            let new_board = self.del_grid(mov.from.x, mov.from.y).set_grid(mov.to.x, mov.to.y, Grid {piece: mov.piece, promoted: mov.promote, player: 0});
+
+            if target_grid.player == 1 {
+                boards.push(new_board.add_hand(0, mov.piece, 1));
+            } else {
+                boards.push(new_board);
+            }
+        }
+
+        let hands = self.get_hands();
+
+        // 打ち駒
+        for (i, &count) in hands.first.iter().enumerate() {
+            if count > 0 {
+                let piece = Piece::from_hand_index(i);
+                for y in 0..3 {
+                    for x in 0..3 {
+                        let grid = self.get_grid(x, y);
+                        if grid.piece != Piece::Empty {
+                            continue;
+                        }
+
+                        // 行き所のない駒
+                        if y == 0 && (piece == Piece::歩兵 || piece == Piece::香車 || piece == Piece::桂馬) {
+                            continue;
+                        }
+                        if y == 1 && piece == Piece::桂馬 {
+                            continue;
+                        }
+
+                        boards.push(self.set_grid(x, y, Grid {piece: piece, player: 0, promoted: false}).add_hand(0, piece, -1));
+                    }
+                }
+            }
+        }
+
+        boards
+    }
+
     pub fn print(&self) {
         for y in 0..3 {
             for x in 0..3 {
@@ -295,60 +353,43 @@ impl Board {
 
         let hands = self.get_hands();
 
-        print!("☗持ち駒");
+        print!("☗");
         let mut total_count = 0;
 
         for (i, &count) in hands.first.iter().enumerate() {
-            let piece = match i {
-                0 => Piece::飛車,
-                1 => Piece::角行,
-                2 => Piece::金将,
-                3 => Piece::銀将,
-                4 => Piece::桂馬,
-                5 => Piece::香車,
-                6 => Piece::歩兵,
-                _ => panic!(),
-            };
+            let piece = Piece::from_hand_index(i);
 
             for _ in 0..count {
-                print!(" {}", piece.to_char());
+                print!("{}", piece.to_char());
             }
 
             total_count += count;
         }
 
         if total_count == 0 {
-            print!(" なし");
+            print!("なし");
         }
 
         println!("");
 
-        print!("☖持ち駒");
+        print!("☖");
         let mut total_count = 0;
 
         for (i, &count) in hands.second.iter().enumerate() {
-            let piece = match i {
-                0 => Piece::飛車,
-                1 => Piece::角行,
-                2 => Piece::金将,
-                3 => Piece::銀将,
-                4 => Piece::桂馬,
-                5 => Piece::香車,
-                6 => Piece::歩兵,
-                _ => panic!(),
-            };
+            let piece = Piece::from_hand_index(i);
 
             for _ in 0..count {
-                print!(" {}", piece.to_char());
+                print!("{}", piece.to_char());
             }
 
             total_count += count;
         }
 
         if total_count == 0 {
-            print!(" なし");
+            print!("なし");
         }
 
+        println!("");
         println!("");
     }
 }

@@ -59,6 +59,17 @@ fn board_get_possible_moves_test() {
     assert_eq!(moves.len(), 12);
 
     /*
+     * □ 銀 □
+     * □ □ □
+     * □ 王 □
+     */
+    let board = Board {grids: 0, hands: 0, player: true};
+    let board = board.set_grid(1, 2, Grid {piece: Piece::王将, player: 0, promoted: false});
+    let board = board.set_grid(1, 0, Grid {piece: Piece::銀将, player: 0, promoted: false});
+    let moves = board.get_possible_moves();
+    assert_eq!(moves.len(), 9);
+
+    /*
      * □ □ □
      * □ 全 □
      * □ 王 □
