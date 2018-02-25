@@ -12,25 +12,25 @@ const M01: Move = Move {x: -1, y: -2};
 const M02: Move = Move {x:  0, y: -2};
 const M03: Move = Move {x:  1, y: -2};
 const M04: Move = Move {x:  2, y: -2};
-const M10: Move = Move {x: -2, y: -1};
+// const M10: Move = Move {x: -2, y: -1};
 const M11: Move = Move {x: -1, y: -1};
 const M12: Move = Move {x:  0, y: -1};
 const M13: Move = Move {x:  1, y: -1};
-const M14: Move = Move {x:  2, y: -1};
+// const M14: Move = Move {x:  2, y: -1};
 const M20: Move = Move {x: -2, y:  0};
 const M21: Move = Move {x: -1, y:  0};
 // M22 will never used :)
 const M23: Move = Move {x:  1, y:  0};
 const M24: Move = Move {x:  2, y:  0};
-const M30: Move = Move {x: -2, y:  1};
+// const M30: Move = Move {x: -2, y:  1};
 const M31: Move = Move {x: -1, y:  1};
 const M32: Move = Move {x:  0, y:  1};
 const M33: Move = Move {x:  1, y:  1};
-const M34: Move = Move {x:  2, y:  1};
+// const M34: Move = Move {x:  2, y:  1};
 const M40: Move = Move {x: -2, y:  2};
-const M41: Move = Move {x: -1, y:  2};
+// const M41: Move = Move {x: -1, y:  2};
 const M42: Move = Move {x:  0, y:  2};
-const M43: Move = Move {x:  1, y:  2};
+// const M43: Move = Move {x:  1, y:  2};
 const M44: Move = Move {x:  2, y:  2};
 
 // マス

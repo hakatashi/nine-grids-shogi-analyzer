@@ -117,4 +117,19 @@ fn board_get_possible_moves_test() {
     let board = board.set_grid(1, 2, Grid {piece: Piece::桂馬, player: 0, promoted: false});
     let moves = board.get_possible_moves();
     assert_eq!(moves.len(), 4);
+
+    /*
+     * 銀 金 王
+     * □ 歩 歩
+     * 王v□ □
+     */
+    let board = Board {grids: 0, hands: 0, player: true};
+    let board = board.set_grid(0, 0, Grid {piece: Piece::銀将, player: 0, promoted: false});
+    let board = board.set_grid(1, 0, Grid {piece: Piece::金将, player: 0, promoted: false});
+    let board = board.set_grid(2, 0, Grid {piece: Piece::王将, player: 0, promoted: false});
+    let board = board.set_grid(1, 1, Grid {piece: Piece::歩兵, player: 0, promoted: false});
+    let board = board.set_grid(2, 1, Grid {piece: Piece::歩兵, player: 0, promoted: false});
+    let board = board.set_grid(0, 2, Grid {piece: Piece::王将, player: 1, promoted: false});
+    let moves = board.get_possible_moves();
+    assert_eq!(moves.len(), 0);
 }

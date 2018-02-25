@@ -13,6 +13,13 @@ pub struct Board {
     pub player: bool,
 }
 
+#[derive(Clone, Copy, PartialEq, Eq, Debug)]
+pub enum BoardResult {
+    Win,
+    Lose,
+    Unknown,
+}
+
 #[derive(PartialEq, Eq, Debug)]
 struct BoardHandInfo {
     first: Vec<u8>,
@@ -255,6 +262,25 @@ impl Board {
             }
         }
         moves
+    }
+
+    pub fn get_result(&self) -> BoardResult {
+        let moves = self.get_possible_moves();
+
+        // ステルスメイト
+        if moves.len() == 0 {
+            return BoardResult::Lose;
+        }
+
+        for mov in moves {
+            let target_grid = self.get_grid(mov.to.x, mov.to.y);
+
+            if target_grid.piece == Piece::王将 && target_grid.player == 1 {
+                return BoardResult::Win;
+            }
+        }
+
+        BoardResult::Unknown
     }
 
     pub fn print(&self) {

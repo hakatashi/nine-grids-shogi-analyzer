@@ -33,4 +33,6 @@ fn main() {
     let board = board.reverse();
 
     board.print();
+
+    println!("{:?}", board.get_result());
 }

@@ -1,14 +1,7 @@
 extern crate fnv;
 
 use self::fnv::FnvHashMap;
-use ::Board::Board;
-
-#[derive(Clone, Copy, PartialEq, Eq, Debug)]
-pub enum BoardResult {
-    Win,
-    Lose,
-    Unknown,
-}
+use ::Board::{Board, BoardResult};
 
 #[derive(Clone, Copy, PartialEq, Eq, Debug)]
 pub struct BoardState {
