@@ -48,4 +48,17 @@ fn main() {
     for transition in transitions {
         transition.print();
     }
+
+    println!("Generate boards from pieces 銀銀歩歩:");
+
+    let board_map = BoardMap::BoardMap::from_pieces(vec![
+        Piece::Piece::銀将,
+        Piece::Piece::銀将,
+        Piece::Piece::歩兵,
+        Piece::Piece::歩兵,
+    ]);
+
+    println!("Number of generated boards: {}", board_map.map.len());
+    println!("Wins: {}", board_map.wins);
+    println!("Loses: {}", board_map.loses);
 }

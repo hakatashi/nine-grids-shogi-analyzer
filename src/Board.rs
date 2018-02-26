@@ -43,7 +43,15 @@ pub struct PieceMove {
 }
 
 impl Board {
-    fn get_grid(&self, x: u8, y: u8) -> Grid {
+    pub fn Empty() -> Board {
+        Board {
+            grids: 0,
+            hands: 0,
+            player: false,
+        }
+    }
+
+    pub fn get_grid(&self, x: u8, y: u8) -> Grid {
         assert!(x < 3 && y < 3);
         Grid::from_i(((self.grids >> ((y * 3 + x) * 5)) & 0b11111) as u8)
     }
@@ -328,36 +336,56 @@ impl Board {
                             continue;
                         }
 
-                        // 行き所のない駒
-                        if y == 0 && (piece == Piece::歩兵 || piece == Piece::香車 || piece == Piece::桂馬) {
-                            continue;
-                        }
-                        if y == 1 && piece == Piece::桂馬 {
-                            continue;
-                        }
+                        let board = self.set_grid(x, y, Grid {piece: piece, player: 0, promoted: false}).add_hand(0, piece, -1);
 
-                        // 二歩
-                        if piece == Piece::歩兵 {
-                            let mut flag = false;
-                            for target_y in 0..3 {
-                                let target_grid = self.get_grid(x, target_y);
-                                if target_grid.piece == Piece::歩兵 && target_grid.player == 0 {
-                                    flag = true;
-                                    break
-                                }
-                            }
-                            if flag {
-                                continue;
-                            }
+                        if board.is_valid() {
+                            boards.push(board);
                         }
-
-                        boards.push(self.set_grid(x, y, Grid {piece: piece, player: 0, promoted: false}).add_hand(0, piece, -1));
                     }
                 }
             }
         }
 
         boards
+    }
+
+    pub fn is_valid(&self) -> bool {
+        for y in 0..3 {
+            for x in 0..3 {
+                let grid = self.get_grid(x, y);
+                if grid.piece == Piece::Empty {
+                    continue;
+                }
+
+                // 行き所のない駒
+                if !grid.promoted && (
+                    (grid.player == 0 && y == 0) ||
+                    (grid.player == 1 && y == 2)
+                ) && (
+                    grid.piece == Piece::歩兵 ||
+                    grid.piece == Piece::香車 ||
+                    grid.piece == Piece::桂馬
+                ) {
+                    return false;
+                }
+
+                if !grid.promoted && y == 1 && grid.piece == Piece::桂馬 {
+                    return false;
+                }
+
+                // 二歩
+                if grid.piece == Piece::歩兵 {
+                    for target_y in (y + 1)..3 {
+                        let target_grid = self.get_grid(x, target_y);
+                        if target_grid.piece == Piece::歩兵 && target_grid.player == grid.player {
+                            return false;
+                        }
+                    }
+                }
+            }
+        }
+
+        true
     }
 
     pub fn print(&self) {

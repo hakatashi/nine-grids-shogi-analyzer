@@ -26,6 +26,13 @@ impl Piece {
         }
     }
 
+    pub fn is_promotable(&self) -> bool {
+        match self {
+            &Piece::Empty | &Piece::王将 | &Piece::金将 => false,
+            _ => true,
+        }
+    }
+
     pub fn from_hand_index(i: usize) -> Piece {
         match i {
             0 => Piece::飛車,
