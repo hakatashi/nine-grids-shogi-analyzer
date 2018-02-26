@@ -127,9 +127,9 @@ impl Grid {
         };
 
         if self.player == 0 {
-            format!("{} ", piece)
+            format!(" {}", piece)
         } else {
-            format!("{}v", piece)
+            format!("v{}", piece)
         }
     }
 

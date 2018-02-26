@@ -279,7 +279,8 @@ impl Board {
         let hands = self.get_hands();
 
         // ステルスメイト
-        if moves.len() == 0 && hands.first.len() == 0 {
+        // TODO: 持ち駒はあるが打ちどころが無い場合にどうするか?
+        if moves.len() == 0 && hands.first.iter().all(|&count| count == 0) {
             return BoardResult::Lose;
         }
 
