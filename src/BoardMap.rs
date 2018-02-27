@@ -71,8 +71,6 @@ impl BoardMap {
                     self.wins += 1;
                 } else if result == BoardResult::Lose {
                     self.loses += 1;
-                    println!("Found lose board:");
-                    board.print();
                 }
 
                 self.map.insert(board, BoardState {result: result, depth: Some(0)});
@@ -102,5 +100,14 @@ impl BoardMap {
         // 持ち駒にする
         self.place_pieces(board.add_hand(0, piece, 1), &rest_pieces.to_vec());
         self.place_pieces(board.add_hand(1, piece, 1), &rest_pieces.to_vec());
+    }
+
+    pub fn merge(&mut self, board_map: BoardMap) {
+        self.wins += board_map.wins;
+        self.loses += board_map.loses;
+
+        for (&map, &state) in board_map.map.iter() {
+            self.map.insert(map, state);
+        }
     }
 }
