@@ -31,6 +31,8 @@ fn main() {
     loop {
         let mut current_map = BoardMap::BoardMap::Empty();
 
+        println!("Digging Depth-{}...", depth);
+
         for (&board, &state) in board_map.map.iter() {
             if state.result == Board::BoardResult::Unknown {
                 let transitions = board.get_possible_transitions();
@@ -88,9 +90,6 @@ fn main() {
             }
         }
 
-        println!("Depth-{} Wins: {}", depth, current_map.wins);
-        println!("Depth-{} Loses: {}", depth, current_map.loses);
-
         if current_map.wins == 0 && current_map.loses == 0 {
             break;
         }
@@ -100,13 +99,19 @@ fn main() {
         depth += 1;
     }
 
-    println!("Total Wins: {}", board_map.wins);
-    println!("Total Loses: {}", board_map.loses);
-
     let mut win_map: FnvHashMap<u8, u32> = FnvHashMap::default();
     let mut lose_map: FnvHashMap<u8, u32> = FnvHashMap::default();
+    let mut unknown_count = 0_u32;
 
     for (&board, &state) in board_map.map.iter() {
+        if state.result == Board::BoardResult::Unknown {
+            unknown_count += 1;
+            if unknown_count == 0 {
+                println!("Example of Unknown Board:");
+                board.print();
+            }
+        }
+
         match state.depth {
             None => {},
             Some(depth) => {
@@ -118,7 +123,7 @@ fn main() {
                         };
 
                         if wins == 0 {
-                            println!("First Move-{} Win Board:", depth);
+                            println!("Example of Move-{} Win Board:", depth);
                             board.print();
                         }
 
@@ -131,7 +136,7 @@ fn main() {
                         };
 
                         if loses == 0 {
-                            println!("First Move-{} Lose Board:", depth);
+                            println!("Example of Move-{} Lose Board:", depth);
                             board.print();
                         }
 
@@ -143,7 +148,9 @@ fn main() {
         }
     }
 
-    for i in 0..50 {
+    println!("Total Boards: (wins: {}, loses: {}, unknowns: {})", board_map.wins, board_map.loses, unknown_count);
+
+    for i in 0..60 {
         let wins = match win_map.get(&i) {
             Some(&count) => count,
             None => 0,
@@ -153,8 +160,7 @@ fn main() {
             None => 0,
         };
 
-        println!("Number of Move-{} Win Boards: {}", i, wins);
-        println!("Number of Move-{} Lose Boards: {}", i, loses);
+        println!("Move-{} Boards: (wins: {}, loses: {})", i, wins, loses);
     }
 
     let board = Board::Board::Empty();
