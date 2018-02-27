@@ -59,6 +59,60 @@ fn main() {
     ]);
 
     println!("Number of generated boards: {}", board_map.map.len());
-    println!("Wins: {}", board_map.wins);
-    println!("Loses: {}", board_map.loses);
+    println!("Depth-0 Wins: {}", board_map.wins);
+    println!("Depth-0 Loses: {}", board_map.loses);
+
+    let mut depth_1_map = BoardMap::BoardMap::Empty();
+
+    for (&board, state) in board_map.map.iter() {
+        if state.result == Board::BoardResult::Unknown {
+            let transitions = board.get_possible_transitions();
+
+            let mut is_all_win = true;
+            let mut is_all_lose = true;
+            let mut is_any_lose = false;
+            let mut is_any_unknown = false;
+
+            for transition in transitions {
+                let transition_state = board_map.map.get(&transition).unwrap();
+
+                match transition_state.result {
+                    Board::BoardResult::Win => {
+                        is_all_lose = false;
+                    },
+                    Board::BoardResult::Lose => {
+                        is_all_win = false;
+                        is_any_lose = true;
+                    },
+                    Board::BoardResult::Unknown => {
+                        is_all_lose = false;
+                        is_all_win = false;
+                        is_any_unknown = true;
+                    },
+                }
+
+                if !is_all_lose && !is_all_win && is_any_lose && is_any_unknown {
+                    break;
+                }
+            }
+
+            if is_all_win {
+                depth_1_map.map.insert(board, BoardMap::BoardState {result: Board::BoardResult::Lose, depth: Some(1)});
+                depth_1_map.loses += 1;
+                if depth_1_map.loses == 100000 {
+                    println!("100000th Depth-1 Lose Board:");
+                    board.print();
+                }
+            } else if is_all_lose {
+                depth_1_map.map.insert(board, BoardMap::BoardState {result: Board::BoardResult::Win, depth: Some(1)});
+                depth_1_map.wins += 1;
+            } else if !is_any_unknown && is_any_lose {
+                depth_1_map.map.insert(board, BoardMap::BoardState {result: Board::BoardResult::Win, depth: Some(1)});
+                depth_1_map.wins += 1;
+            }
+        }
+    }
+
+    println!("Depth-1 Wins: {}", depth_1_map.wins);
+    println!("Depth-1 Loses: {}", depth_1_map.loses);
 }

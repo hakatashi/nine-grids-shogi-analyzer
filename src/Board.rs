@@ -317,9 +317,9 @@ impl Board {
             let new_board = self.del_grid(mov.from.x, mov.from.y).set_grid(mov.to.x, mov.to.y, Grid {piece: mov.piece, promoted: mov.promote, player: 0});
 
             if target_grid.player == 1 {
-                boards.push(new_board.add_hand(0, target_grid.piece, 1));
+                boards.push(new_board.add_hand(0, target_grid.piece, 1).reverse());
             } else {
-                boards.push(new_board);
+                boards.push(new_board.reverse());
             }
         }
 
@@ -339,7 +339,7 @@ impl Board {
                         let board = self.set_grid(x, y, Grid {piece: piece, player: 0, promoted: false}).add_hand(0, piece, -1);
 
                         if board.is_valid() {
-                            boards.push(board);
+                            boards.push(board.reverse());
                         }
                     }
                 }

@@ -7,8 +7,8 @@ use ::Grid::Grid;
 
 #[derive(Clone, Copy, PartialEq, Eq, Debug)]
 pub struct BoardState {
-    result: BoardResult,
-    depth: Option<u8>,
+    pub result: BoardResult,
+    pub depth: Option<u8>,
 }
 
 pub struct BoardMap {
@@ -18,9 +18,17 @@ pub struct BoardMap {
 }
 
 impl BoardMap {
+    pub fn Empty() -> BoardMap {
+        BoardMap {
+            map: FnvHashMap::default(),
+            wins: 0,
+            loses: 0,
+        }
+    }
+
     pub fn from_pieces(pieces: Vec<Piece>) -> BoardMap {
         let board = Board::Empty();
-        let mut board_map = BoardMap {map: FnvHashMap::default(), wins: 0, loses: 0};
+        let mut board_map = BoardMap::Empty();
 
         // まず先手後手の王将を置く
         for x in 0..3 {
