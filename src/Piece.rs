@@ -14,7 +14,7 @@ pub enum Piece {
 impl Piece {
     pub fn to_char(&self) -> &str {
         match self {
-            &Piece::Empty => "　",
+            &Piece::Empty => "・",
             &Piece::王将 => "王",
             &Piece::飛車 => "飛",
             &Piece::角行 => "角",

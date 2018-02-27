@@ -374,10 +374,10 @@ impl Board {
                 }
 
                 // 二歩
-                if grid.piece == Piece::歩兵 {
+                if grid.piece == Piece::歩兵 && grid.promoted == false {
                     for target_y in (y + 1)..3 {
                         let target_grid = self.get_grid(x, target_y);
-                        if target_grid.piece == Piece::歩兵 && target_grid.player == grid.player {
+                        if target_grid.piece == Piece::歩兵 && target_grid.promoted == false && target_grid.player == grid.player {
                             return false;
                         }
                     }
