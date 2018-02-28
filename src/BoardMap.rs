@@ -64,6 +64,7 @@ impl BoardMap {
 
             let result = board.get_result();
 
+            // TODO: リファクタリング
             if result == BoardResult::Unknown {
                 self.map.insert(board, BoardState {result: result, depth: None});
             } else {
@@ -73,8 +74,13 @@ impl BoardMap {
                     self.loses += 1;
                 }
 
-                self.map.insert(board, BoardState {result: result, depth: Some(0)});
+                self.map.insert(board, BoardState {result: result, depth: Some(if result == BoardResult::Win {0} else {1})});
             }
+
+            if self.map.len() % 10000 == 0 {
+                println!("{}", self.map.len());
+            }
+
             return;
         }
 

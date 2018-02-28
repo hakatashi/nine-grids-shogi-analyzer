@@ -96,7 +96,7 @@ impl Board {
             let size = match hand_type {
                 0 | 1 => 3,
                 2 | 3 | 4 | 5  => 4,
-                6 => 5,
+                6 => 6,
                 _ => panic!(),
             };
             let max_pieces = match hand_type {
@@ -123,7 +123,7 @@ impl Board {
             let size = match hand_type {
                 0 | 1 => 3,
                 2 | 3 | 4 | 5  => 4,
-                6 => 5,
+                6 => 6,
                 _ => panic!(),
             };
             let max_pieces = match hand_type {
@@ -287,9 +287,34 @@ impl Board {
         let hands = self.get_hands();
 
         // ステルスメイト
-        // TODO: 持ち駒はあるが打ちどころが無い場合にどうするか?
-        if moves.len() == 0 && hands.first.iter().all(|&count| count == 0) {
-            return BoardResult::Lose;
+        if moves.len() == 0 {
+            let mut is_stealth_mate = true;
+
+            // 打ち駒を打てる場所があるか
+            'hand_loop: for (i, &count) in hands.first.iter().enumerate() {
+                if count > 0 {
+                    let piece = Piece::from_hand_index(i);
+                    for y in 0..3 {
+                        for x in 0..3 {
+                            let grid = self.get_grid(x, y);
+                            if grid.piece != Piece::Empty {
+                                continue;
+                            }
+
+                            let board = self.set_grid(x, y, Grid {piece: piece, player: 0, promoted: false}).add_hand(0, piece, -1);
+
+                            if board.is_valid() {
+                                is_stealth_mate = false;
+                                break 'hand_loop;
+                            }
+                        }
+                    }
+                }
+            }
+
+            if is_stealth_mate {
+                return BoardResult::Lose;
+            }
         }
 
         for mov in moves {

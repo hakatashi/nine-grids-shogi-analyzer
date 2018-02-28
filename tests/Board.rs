@@ -191,4 +191,37 @@ fn board_get_result_test() {
     let board = board.set_grid(2, 1, Grid {piece: Piece::歩兵, player: 0, promoted: false});
     let board = board.set_grid(0, 2, Grid {piece: Piece::王将, player: 1, promoted: false});
     assert_eq!(board.get_result(), BoardResult::Lose);
+
+    /*
+     *  銀 金 王
+     *  ・ 歩 歩
+     * v王 ・ ・
+     * ☗歩
+     */
+    let board = Board {grids: 0, hands: 0, player: true};
+    let board = board.set_grid(0, 0, Grid {piece: Piece::銀将, player: 0, promoted: false});
+    let board = board.set_grid(1, 0, Grid {piece: Piece::金将, player: 0, promoted: false});
+    let board = board.set_grid(2, 0, Grid {piece: Piece::王将, player: 0, promoted: false});
+    let board = board.set_grid(1, 1, Grid {piece: Piece::歩兵, player: 0, promoted: false});
+    let board = board.set_grid(2, 1, Grid {piece: Piece::歩兵, player: 0, promoted: false});
+    let board = board.set_grid(0, 2, Grid {piece: Piece::王将, player: 1, promoted: false});
+    let board = board.add_hand(0, Piece::歩兵, 1);
+    assert_eq!(board.get_result(), BoardResult::Unknown);
+
+    /*
+     *  と 王 と
+     *  歩 歩 歩
+     * v王 ・ ・
+     * ☗歩
+     */
+    let board = Board::Empty();
+    let board = board.set_grid(0, 0, Grid {piece: Piece::歩兵, player: 0, promoted: true});
+    let board = board.set_grid(1, 0, Grid {piece: Piece::王将, player: 0, promoted: false});
+    let board = board.set_grid(2, 0, Grid {piece: Piece::歩兵, player: 0, promoted: true});
+    let board = board.set_grid(0, 1, Grid {piece: Piece::歩兵, player: 0, promoted: false});
+    let board = board.set_grid(1, 1, Grid {piece: Piece::歩兵, player: 0, promoted: false});
+    let board = board.set_grid(2, 1, Grid {piece: Piece::歩兵, player: 0, promoted: false});
+    let board = board.set_grid(0, 2, Grid {piece: Piece::王将, player: 1, promoted: false});
+    let board = board.add_hand(0, Piece::歩兵, 1);
+    assert_eq!(board.get_result(), BoardResult::Lose);
 }
