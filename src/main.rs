@@ -16,8 +16,10 @@ fn main() {
     let pieces = vec![
         Piece::Piece::歩兵,
         Piece::Piece::歩兵,
-        Piece::Piece::飛車,
-        Piece::Piece::角行,
+        Piece::Piece::歩兵,
+        Piece::Piece::歩兵,
+        Piece::Piece::歩兵,
+        Piece::Piece::歩兵,
     ];
 
     println!("Generate boards from pieces {:?}:", pieces);
@@ -43,6 +45,8 @@ fn main() {
                 let mut is_any_lose = false;
                 let mut min_lose_depth = None;
                 let mut max_win_depth = None;
+                let mut win_routes = 0_u32;
+                let mut lose_routes = 0_u32;
 
                 for transition in transitions {
                     let transition_state = match board_map.map.get(&transition) {
@@ -67,11 +71,26 @@ fn main() {
                                 Some(depth) => depth,
                             };
 
+                            let new_routes = match transition_state.routes {
+                                None => {
+                                    println!("Routes of the following board was not set:");
+                                    transition.print();
+                                    panic!();
+                                },
+                                Some(routes) => routes,
+                            };
+
                             match max_win_depth {
-                                None => max_win_depth = Some(new_depth),
+                                None => {
+                                    max_win_depth = Some(new_depth);
+                                    win_routes = new_routes;
+                                },
                                 Some(depth) => {
-                                    if new_depth > depth {
+                                    if new_depth == depth {
+                                        win_routes += new_routes;
+                                    } else if new_depth > depth {
                                         max_win_depth = Some(new_depth);
+                                        win_routes = new_routes;
                                     }
                                 },
                             }
@@ -89,11 +108,26 @@ fn main() {
                                 Some(depth) => depth,
                             };
 
+                            let new_routes = match transition_state.routes {
+                                None => {
+                                    println!("Routes of the following board was not set:");
+                                    transition.print();
+                                    panic!();
+                                },
+                                Some(routes) => routes,
+                            };
+
                             match min_lose_depth {
-                                None => min_lose_depth = Some(new_depth),
+                                None => {
+                                    min_lose_depth = Some(new_depth);
+                                    lose_routes = new_routes;
+                                },
                                 Some(depth) => {
-                                    if new_depth < depth {
+                                    if new_depth == depth {
+                                        lose_routes += new_routes;
+                                    } else if new_depth < depth {
                                         min_lose_depth = Some(new_depth);
+                                        lose_routes = new_routes;
                                     }
                                 },
                             }
@@ -117,6 +151,7 @@ fn main() {
                     current_map.map.insert(board, BoardMap::BoardState {
                         result: Board::BoardResult::Lose,
                         depth: Some(max_win_depth + 1),
+                        routes: Some(win_routes),
                     });
                     current_map.loses += 1;
                 } else if is_any_lose {
@@ -132,6 +167,7 @@ fn main() {
                     current_map.map.insert(board, BoardMap::BoardState {
                         result: Board::BoardResult::Win,
                         depth: Some(min_lose_depth + 1),
+                        routes: Some(lose_routes),
                     });
                     current_map.wins += 1;
                 }
@@ -156,6 +192,7 @@ fn main() {
             if unknown_count == 0 {
                 println!("Example of Unknown Board:");
                 board.print();
+                println!("{:?}", state);
             }
             unknown_count += 1;
         }
@@ -173,6 +210,7 @@ fn main() {
                         if wins == 0 {
                             println!("Example of Move-{} Win Board:", depth);
                             board.print();
+                            println!("{:?}", state);
                         }
 
                         win_map.insert(depth, wins + 1);
@@ -186,6 +224,7 @@ fn main() {
                         if loses == 0 {
                             println!("Example of Move-{} Lose Board:", depth);
                             board.print();
+                            println!("{:?}", state);
                         }
 
                         lose_map.insert(depth, loses + 1);

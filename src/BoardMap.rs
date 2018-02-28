@@ -9,6 +9,7 @@ use ::Grid::Grid;
 pub struct BoardState {
     pub result: BoardResult,
     pub depth: Option<u8>,
+    pub routes: Option<u32>,
 }
 
 pub struct BoardMap {
@@ -66,7 +67,11 @@ impl BoardMap {
 
             // TODO: リファクタリング
             if result == BoardResult::Unknown {
-                self.map.insert(board, BoardState {result: result, depth: None});
+                self.map.insert(board, BoardState {
+                    result: result,
+                    depth: None,
+                    routes: None,
+                });
             } else {
                 if result == BoardResult::Win {
                     self.wins += 1;
@@ -74,7 +79,11 @@ impl BoardMap {
                     self.loses += 1;
                 }
 
-                self.map.insert(board, BoardState {result: result, depth: Some(if result == BoardResult::Win {0} else {1})});
+                self.map.insert(board, BoardState {
+                    result: result,
+                    depth: Some(if result == BoardResult::Win {0} else {1}),
+                    routes: Some(1),
+                });
             }
 
             if self.map.len() % 10000 == 0 {
