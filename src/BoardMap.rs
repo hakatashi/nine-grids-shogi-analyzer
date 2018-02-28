@@ -1,6 +1,8 @@
 extern crate fnv;
+extern crate rusqlite;
 
 use self::fnv::FnvHashMap;
+use self::rusqlite::Connection;
 use ::Board::{Board, BoardResult};
 use ::Piece::Piece;
 use ::Grid::Grid;
@@ -86,8 +88,8 @@ impl BoardMap {
                 });
             }
 
-            if self.map.len() % 10000 == 0 {
-                println!("{}", self.map.len());
+            if self.map.len() % 100000 == 0 {
+                println!("BoardMap#place_pieces: {} boards completed", self.map.len());
             }
 
             return;
@@ -123,6 +125,51 @@ impl BoardMap {
 
         for (&map, &state) in board_map.map.iter() {
             self.map.insert(map, state);
+        }
+    }
+
+    pub fn write(&self, path: String) {
+        let conn = Connection::open(path).unwrap();
+        conn.execute("
+            CREATE TABLE IF NOT EXISTS boards (
+                board BLOB PRIMARY KEY NOT NULL,
+                result INTEGER NOT NULL,
+                depth INTEGER NOT NULL,
+                routes INTEGER NOT NULL
+            )
+        ", &[]).unwrap();
+
+        conn.query_row("PRAGMA journal_mode = OFF", &[], |_| {}).unwrap();
+        conn.execute("PRAGMA synchronous = OFF", &[]).unwrap();
+
+        let mut count = 0;
+        let mut percentage = 1;
+        let total_count = self.map.len();
+
+        for (&board, &state) in self.map.iter() {
+            count += 1;
+
+            if percentage * total_count / 100 == count {
+                println!("BoardMap::write: {}% completed ({}/{})", percentage, count, total_count);
+                percentage += 1;
+            }
+
+            if state.result == BoardResult::Unknown || state.depth == Some(0) {
+                continue;
+            }
+
+            conn.execute("
+                INSERT OR REPLACE INTO boards (board, result, depth, routes) VALUES (?1, ?2, ?3, ?4)
+            ", &[
+                &board.to_blob(),
+                &(match state.result {
+                    BoardResult::Lose => 0,
+                    BoardResult::Win => 1,
+                    _ => panic!(),
+                }),
+                &state.depth.unwrap(),
+                &state.routes.unwrap(),
+            ]).unwrap();
         }
     }
 }

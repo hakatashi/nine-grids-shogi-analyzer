@@ -51,6 +51,23 @@ impl Board {
         }
     }
 
+    pub fn to_blob(&self) -> Vec<u8> {
+        vec![
+            ((self.grids >> (8 * 7)) & 0xff) as u8,
+            ((self.grids >> (8 * 6)) & 0xff) as u8,
+            ((self.grids >> (8 * 5)) & 0xff) as u8,
+            ((self.grids >> (8 * 4)) & 0xff) as u8,
+            ((self.grids >> (8 * 3)) & 0xff) as u8,
+            ((self.grids >> (8 * 2)) & 0xff) as u8,
+            ((self.grids >> (8 * 1)) & 0xff) as u8,
+            ((self.grids >> (8 * 0)) & 0xff) as u8,
+            ((self.hands >> (8 * 3)) & 0xff) as u8,
+            ((self.hands >> (8 * 2)) & 0xff) as u8,
+            ((self.hands >> (8 * 1)) & 0xff) as u8,
+            ((self.hands >> (8 * 0)) & 0xff) as u8,
+        ]
+    }
+
     pub fn get_grid(&self, x: u8, y: u8) -> Grid {
         assert!(x < 3 && y < 3);
         Grid::from_i(((self.grids >> ((y * 3 + x) * 5)) & 0b11111) as u8)

@@ -16,10 +16,8 @@ fn main() {
     let pieces = vec![
         Piece::Piece::歩兵,
         Piece::Piece::歩兵,
-        Piece::Piece::歩兵,
-        Piece::Piece::歩兵,
-        Piece::Piece::歩兵,
-        Piece::Piece::歩兵,
+        Piece::Piece::銀将,
+        Piece::Piece::銀将,
     ];
 
     println!("Generate boards from pieces {:?}:", pieces);
@@ -273,4 +271,8 @@ fn main() {
     println!("State of This Borad:");
     board.print();
     println!("{:?}", board_map.map.get(&board));
+
+    println!("Writing out database");
+
+    board_map.write("test.sqlite3".to_string());
 }
