@@ -16,8 +16,10 @@ fn main() {
     let pieces = vec![
         Piece::Piece::歩兵,
         Piece::Piece::歩兵,
-        Piece::Piece::銀将,
-        Piece::Piece::銀将,
+        Piece::Piece::歩兵,
+        Piece::Piece::歩兵,
+        Piece::Piece::歩兵,
+        Piece::Piece::歩兵,
     ];
 
     println!("Generate boards from pieces {:?}:", pieces);
@@ -38,6 +40,7 @@ fn main() {
         for (&board, &state) in board_map.map.iter() {
             if state.result == Board::BoardResult::Unknown {
                 let transitions = board.get_possible_transitions();
+                let transition_count = transitions.len();
 
                 let mut is_all_win = true;
                 let mut is_any_lose = false;
@@ -45,6 +48,7 @@ fn main() {
                 let mut max_win_depth = None;
                 let mut win_routes = 0_u32;
                 let mut lose_routes = 0_u32;
+                let mut win_0_count = 0_u16;
 
                 for transition in transitions {
                     let transition_state = match board_map.map.get(&transition) {
@@ -91,6 +95,10 @@ fn main() {
                                         win_routes = new_routes;
                                     }
                                 },
+                            }
+
+                            if new_depth == 0 {
+                                win_0_count += 1;
                             }
                         },
                         Board::BoardResult::Lose => {
@@ -150,6 +158,7 @@ fn main() {
                         result: Board::BoardResult::Lose,
                         depth: Some(max_win_depth + 1),
                         routes: Some(win_routes),
+                        is_good: Some(false),
                     });
                     current_map.loses += 1;
                 } else if is_any_lose {
@@ -166,6 +175,8 @@ fn main() {
                         result: Board::BoardResult::Win,
                         depth: Some(min_lose_depth + 1),
                         routes: Some(lose_routes),
+                        // 合法手の数が3つ以上かつ理想盤面の場合にフラグを立てる
+                        is_good: Some(transition_count as u16 - win_0_count >= 3 && board.is_good()),
                     });
                     current_map.wins += 1;
                 }
@@ -249,12 +260,10 @@ fn main() {
     }
 
     let board = Board::Board::Empty();
-    let board = board.set_grid(0, 0, Grid::Grid {piece: Piece::Piece::歩兵, player: 1, promoted: false});
     let board = board.set_grid(1, 0, Grid::Grid {piece: Piece::Piece::飛車, player: 1, promoted: false});
     let board = board.set_grid(2, 0, Grid::Grid {piece: Piece::Piece::王将, player: 1, promoted: false});
     let board = board.set_grid(0, 2, Grid::Grid {piece: Piece::Piece::王将, player: 0, promoted: false});
     let board = board.set_grid(1, 2, Grid::Grid {piece: Piece::Piece::角行, player: 0, promoted: false});
-    let board = board.set_grid(2, 2, Grid::Grid {piece: Piece::Piece::歩兵, player: 0, promoted: false});
 
     println!("State of This Borad:");
     board.print();
@@ -263,9 +272,7 @@ fn main() {
     let board = Board::Board::Empty();
     let board = board.set_grid(0, 2, Grid::Grid {piece: Piece::Piece::王将, player: 1, promoted: false});
     let board = board.set_grid(2, 0, Grid::Grid {piece: Piece::Piece::王将, player: 0, promoted: false});
-    let board = board.add_hand(0, Piece::Piece::歩兵, 1);
     let board = board.add_hand(0, Piece::Piece::飛車, 1);
-    let board = board.add_hand(1, Piece::Piece::歩兵, 1);
     let board = board.add_hand(1, Piece::Piece::角行, 1);
 
     println!("State of This Borad:");

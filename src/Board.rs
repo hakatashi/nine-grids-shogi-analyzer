@@ -430,6 +430,77 @@ impl Board {
         true
     }
 
+    // 盤面が理想盤面(初期盤面としてふさわしい盤面)かを判定するメソッド
+    // 具体的には、以下の2つのいずれかを満たす盤面かを判定する。
+    // * 以下の2つを満たす
+    //   * 盤面に成駒が一つもない (a)
+    //   * 以下の条件のうち少なくとも1つを満たす
+    //     * 盤面に置かれている王以外の駒が1つ以下 (b)
+    //     * 持ち駒がなく(m)、それぞれのプレイヤーの駒がすべて自陣に配置されている (c)
+    //     * 持ち駒がなく(m)、それぞれのプレイヤーの駒がすべて敵陣に配置されている (d)
+    // * 以下の2つを満たす
+    //   * 盤面に王将以外の先手の駒がない (e)
+    //   * 先手の持ち駒がない、もしくは歩1つのみ (f)
+    pub fn is_good(&self) -> bool {
+        let mut a_flag = true;
+        let mut b_count = 0_u8;
+        let mut c_flag = true;
+        let mut d_flag = true;
+        let mut e_flag = true;
+        let mut f_flag = true;
+        let mut m_flag = true;
+
+        for y in 0..3 {
+            for x in 0..3 {
+                let grid = self.get_grid(x, y);
+
+                if grid.promoted {
+                    a_flag = false;
+                }
+
+                if grid.piece != Piece::Empty && grid.piece != Piece::王将 {
+                    b_count += 1;
+
+                    if grid.player == 0 {
+                        e_flag = false;
+                    }
+                }
+
+                if y != 0 && grid.player == 1 {
+                    c_flag = false;
+                }
+
+                if y != 2 && grid.player == 0 {
+                    c_flag = false;
+                }
+
+                if y != 0 && grid.player == 0 {
+                    d_flag = false;
+                }
+
+                if y != 2 && grid.player == 1 {
+                    d_flag = false;
+                }
+            }
+        }
+
+        let hands = self.get_hands();
+
+        for (i, &count) in hands.first.iter().enumerate() {
+            let piece = Piece::from_hand_index(i);
+
+            if count > 0 {
+                m_flag = false;
+            }
+
+            if count > (if piece == Piece::歩兵 {1} else {0}) {
+                f_flag = false;
+            }
+        }
+
+        (a_flag && (b_count <= 1 || (m_flag && c_flag) || (m_flag && d_flag))) || (e_flag && f_flag)
+    }
+
     pub fn print(&self) {
         for y in 0..3 {
             for x in 0..3 {

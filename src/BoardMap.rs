@@ -12,6 +12,7 @@ pub struct BoardState {
     pub result: BoardResult,
     pub depth: Option<u8>,
     pub routes: Option<u32>,
+    pub is_good: Option<bool>,
 }
 
 pub struct BoardMap {
@@ -73,6 +74,7 @@ impl BoardMap {
                     result: result,
                     depth: None,
                     routes: None,
+                    is_good: None,
                 });
             } else {
                 if result == BoardResult::Win {
@@ -85,6 +87,7 @@ impl BoardMap {
                     result: result,
                     depth: Some(if result == BoardResult::Win {0} else {1}),
                     routes: Some(1),
+                    is_good: Some(false),
                 });
             }
 
@@ -135,12 +138,14 @@ impl BoardMap {
                 board BLOB PRIMARY KEY NOT NULL,
                 result INTEGER NOT NULL,
                 depth INTEGER NOT NULL,
-                routes INTEGER NOT NULL
+                routes INTEGER NOT NULL,
+                is_good INTEGER
             )
         ", &[]).unwrap();
 
         conn.query_row("PRAGMA journal_mode = OFF", &[], |_| {}).unwrap();
         conn.execute("PRAGMA synchronous = OFF", &[]).unwrap();
+        conn.execute("BEGIN", &[]).unwrap();
 
         let mut count = 0;
         let mut percentage = 1;
@@ -159,7 +164,7 @@ impl BoardMap {
             }
 
             conn.execute("
-                INSERT OR REPLACE INTO boards (board, result, depth, routes) VALUES (?1, ?2, ?3, ?4)
+                INSERT OR REPLACE INTO boards (board, result, depth, routes, is_good) VALUES (?1, ?2, ?3, ?4, ?5)
             ", &[
                 &board.to_blob(),
                 &(match state.result {
@@ -169,7 +174,10 @@ impl BoardMap {
                 }),
                 &state.depth.unwrap(),
                 &state.routes.unwrap(),
+                &state.is_good,
             ]).unwrap();
         }
+
+        conn.execute("COMMIT", &[]).unwrap();
     }
 }
