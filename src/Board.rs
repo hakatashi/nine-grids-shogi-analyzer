@@ -118,7 +118,7 @@ impl Board {
             };
             let max_pieces = match hand_type {
                 0 | 1 => 2,
-                2 | 3 | 4 | 5 => 3,
+                2 | 3 | 4 | 5 => 4,
                 6 => 7,
                 _ => panic!(),
             };
@@ -145,7 +145,7 @@ impl Board {
             };
             let max_pieces = match hand_type {
                 0 | 1 => 2,
-                2 | 3 | 4 | 5 => 3,
+                2 | 3 | 4 | 5 => 4,
                 6 => 7,
                 _ => panic!(),
             };
@@ -499,6 +499,12 @@ impl Board {
         }
 
         (a_flag && (b_count <= 1 || (m_flag && c_flag) || (m_flag && d_flag))) || (e_flag && f_flag)
+    }
+
+    pub fn is_transition_打ち歩(&self, transition: Board) -> bool {
+        let from_hands = self.get_hands();
+        let to_hands = transition.get_hands();
+        from_hands.first[6] - to_hands.second[6] == 1
     }
 
     pub fn print(&self) {

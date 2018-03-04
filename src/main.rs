@@ -31,6 +31,7 @@ fn main() {
     println!("Depth-0 Loses: {}", board_map.loses);
 
     let mut depth = 1;
+    let mut 打ち歩詰め_count = 0;
 
     loop {
         let mut current_map = BoardMap::BoardMap::Empty();
@@ -48,6 +49,7 @@ fn main() {
                 let mut max_win_depth = None;
                 let mut win_routes = 0_u32;
                 let mut lose_routes = 0_u32;
+                // 非合法手の数
                 let mut win_0_count = 0_u16;
 
                 for transition in transitions {
@@ -102,9 +104,6 @@ fn main() {
                             }
                         },
                         Board::BoardResult::Lose => {
-                            is_all_win = false;
-                            is_any_lose = true;
-
                             let new_depth = match transition_state.depth {
                                 None => {
                                     println!("Depth of the following board was not set:");
@@ -122,6 +121,16 @@ fn main() {
                                 },
                                 Some(routes) => routes,
                             };
+
+                            // 打ち歩詰め
+                            if new_depth == 1 && board.is_transition_打ち歩(transition) {
+                                打ち歩詰め_count += 1;
+                                win_0_count += 1;
+                                continue;
+                            }
+
+                            is_all_win = false;
+                            is_any_lose = true;
 
                             match min_lose_depth {
                                 None => {
@@ -245,6 +254,7 @@ fn main() {
     }
 
     println!("Total Boards: (wins: {}, loses: {}, unknowns: {})", board_map.wins, board_map.loses, unknown_count);
+    println!("Total Possible 打ち歩詰めs: {}", 打ち歩詰め_count);
 
     for i in 0..60 {
         let wins = match win_map.get(&i) {
