@@ -45,4 +45,17 @@ impl Piece {
             _ => panic!(),
         }
     }
+
+    pub fn to_hand_index(&self) -> u8 {
+        match self {
+            &Piece::飛車 => 0,
+            &Piece::角行 => 1,
+            &Piece::金将 => 2,
+            &Piece::銀将 => 3,
+            &Piece::桂馬 => 4,
+            &Piece::香車 => 5,
+            &Piece::歩兵 => 6,
+            _ => panic!(),
+        }
+    }
 }

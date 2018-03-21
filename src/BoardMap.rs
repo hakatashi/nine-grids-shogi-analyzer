@@ -3,6 +3,7 @@ extern crate rusqlite;
 
 use self::fnv::FnvHashMap;
 use self::rusqlite::Connection;
+use self::rusqlite::types::Null;
 use ::Board::{Board, BoardResult};
 use ::Piece::Piece;
 use ::Grid::Grid;
@@ -136,9 +137,9 @@ impl BoardMap {
         conn.execute("
             CREATE TABLE IF NOT EXISTS boards (
                 board BLOB PRIMARY KEY NOT NULL,
-                result INTEGER NOT NULL,
-                depth INTEGER NOT NULL,
-                routes INTEGER NOT NULL,
+                result INTEGER,
+                depth INTEGER,
+                routes INTEGER,
                 is_good INTEGER
             )
         ", &[]).unwrap();
@@ -159,23 +160,35 @@ impl BoardMap {
                 percentage += 1;
             }
 
-            if state.result == BoardResult::Unknown || state.depth == Some(0) {
+            if state.depth == Some(0) {
                 continue;
             }
 
-            conn.execute("
-                INSERT OR REPLACE INTO boards (board, result, depth, routes, is_good) VALUES (?1, ?2, ?3, ?4, ?5)
-            ", &[
-                &board.to_blob(),
-                &(match state.result {
-                    BoardResult::Lose => 0,
-                    BoardResult::Win => 1,
-                    _ => panic!(),
-                }),
-                &state.depth.unwrap(),
-                &state.routes.unwrap(),
-                &state.is_good,
-            ]).unwrap();
+            if state.result == BoardResult::Unknown {
+                conn.execute("
+                    INSERT OR REPLACE INTO boards (board, result, depth, routes, is_good) VALUES (?1, ?2, ?3, ?4, ?5)
+                ", &[
+                    &board.to_blob(),
+                    &Null,
+                    &Null,
+                    &Null,
+                    &state.is_good,
+                ]).unwrap();
+            } else {
+                conn.execute("
+                    INSERT OR REPLACE INTO boards (board, result, depth, routes, is_good) VALUES (?1, ?2, ?3, ?4, ?5)
+                ", &[
+                    &board.to_blob(),
+                    &(match state.result {
+                        BoardResult::Lose => 0,
+                        BoardResult::Win => 1,
+                        _ => panic!(),
+                    }),
+                    &state.depth.unwrap(),
+                    &state.routes.unwrap(),
+                    &state.is_good,
+                ]).unwrap();
+            }
         }
 
         conn.execute("COMMIT", &[]).unwrap();

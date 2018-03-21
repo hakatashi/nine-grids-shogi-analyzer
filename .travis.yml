@@ -4,7 +4,7 @@ language: rust
 rust:
   - nightly-2018-01-26
 script:
-  - cargo run --release --verbose
+  - cargo run --release --verbose 123
   - cargo test --verbose
 notifications:
   webhooks: http://webhook.hakatashi.com/travis

@@ -11,16 +11,31 @@ mod Grid;
 mod Piece;
 
 use fnv::FnvHashMap;
+use std::env;
+use std::fs;
 
 fn main() {
-    let pieces = vec![
-        Piece::Piece::歩兵,
-        Piece::Piece::歩兵,
-        Piece::Piece::歩兵,
-        Piece::Piece::歩兵,
-        Piece::Piece::歩兵,
-        Piece::Piece::歩兵,
-    ];
+    fs::create_dir_all("boards").unwrap();
+
+    let piece_config = match env::args().nth(1) {
+        Some(config) => config,
+        None => {
+            panic!("Please specify config as args");
+        },
+    };
+
+    let pieces: Vec<Piece::Piece> = piece_config.chars().filter_map(|letter| {
+        match letter.to_digit(10) {
+            Some(digit) => {
+                Some(Piece::Piece::from_hand_index(digit as usize))
+            },
+            None => None,
+        }
+    }).collect();
+
+    let cloned_pieces = pieces.clone();
+    let piece_indices = cloned_pieces.iter().map(|piece| piece.to_hand_index().to_string());
+    let filename = format!("boards/{}.sqlite3", piece_indices.collect::<Vec<_>>().concat());
 
     println!("Generate boards from pieces {:?}:", pieces);
 
@@ -270,26 +285,34 @@ fn main() {
     }
 
     let board = Board::Board::Empty();
-    let board = board.set_grid(1, 0, Grid::Grid {piece: Piece::Piece::飛車, player: 1, promoted: false});
-    let board = board.set_grid(2, 0, Grid::Grid {piece: Piece::Piece::王将, player: 1, promoted: false});
-    let board = board.set_grid(0, 2, Grid::Grid {piece: Piece::Piece::王将, player: 0, promoted: false});
-    let board = board.set_grid(1, 2, Grid::Grid {piece: Piece::Piece::角行, player: 0, promoted: false});
+    let board = board.set_grid(1, 0, Grid::Grid {piece: Piece::Piece::王将, player: 0, promoted: false});
+    let board = board.set_grid(1, 1, Grid::Grid {piece: Piece::Piece::飛車, player: 0, promoted: false});
+    let board = board.set_grid(2, 2, Grid::Grid {piece: Piece::Piece::王将, player: 1, promoted: false});
+    let board = board.add_hand(1, Piece::Piece::飛車, 1);
 
     println!("State of This Borad:");
     board.print();
     println!("{:?}", board_map.map.get(&board));
+
+    println!("State of This Borad:");
+    board.reverse().print();
+    println!("{:?}", board_map.map.get(&(board.reverse())));
 
     let board = Board::Board::Empty();
-    let board = board.set_grid(0, 2, Grid::Grid {piece: Piece::Piece::王将, player: 1, promoted: false});
-    let board = board.set_grid(2, 0, Grid::Grid {piece: Piece::Piece::王将, player: 0, promoted: false});
-    let board = board.add_hand(0, Piece::Piece::飛車, 1);
-    let board = board.add_hand(1, Piece::Piece::角行, 1);
+    let board = board.set_grid(0, 0, Grid::Grid {piece: Piece::Piece::王将, player: 0, promoted: false});
+    let board = board.set_grid(2, 2, Grid::Grid {piece: Piece::Piece::王将, player: 1, promoted: false});
+    let board = board.add_hand(0, Piece::Piece::銀将, 1);
+    let board = board.add_hand(1, Piece::Piece::金将, 1);
 
     println!("State of This Borad:");
     board.print();
     println!("{:?}", board_map.map.get(&board));
 
-    println!("Writing out database");
+    println!("State of This Borad:");
+    board.reverse().print();
+    println!("{:?}", board_map.map.get(&(board.reverse())));
 
-    board_map.write("test.sqlite3".to_string());
+    println!("Writing out to {}:", filename);
+
+    board_map.write(filename.to_string());
 }
