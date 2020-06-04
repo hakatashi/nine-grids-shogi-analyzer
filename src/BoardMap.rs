@@ -134,19 +134,28 @@ impl BoardMap {
 
     pub fn write(&self, path: String) {
         let conn = Connection::open(path).unwrap();
-        conn.execute("
-            CREATE TABLE IF NOT EXISTS boards (
+
+        let table = if cfg!(feature = "nifu") {
+            "nifu"
+        } else {
+            "boards"
+        };
+
+        conn.execute(format!("
+            CREATE TABLE IF NOT EXISTS {} (
                 board BLOB PRIMARY KEY NOT NULL,
                 result INTEGER,
                 depth INTEGER,
                 routes INTEGER,
                 is_good INTEGER
             )
-        ", &[]).unwrap();
+        ", table).as_str(), &[]).unwrap();
 
         conn.query_row("PRAGMA journal_mode = OFF", &[], |_| {}).unwrap();
         conn.execute("PRAGMA synchronous = OFF", &[]).unwrap();
         conn.execute("BEGIN", &[]).unwrap();
+
+        conn.execute(format!("DELETE FROM {}", table).as_str(), &[]).unwrap();
 
         let mut count = 0;
         let mut percentage = 1;
@@ -165,9 +174,9 @@ impl BoardMap {
             }
 
             if state.result == BoardResult::Unknown {
-                conn.execute("
-                    INSERT OR REPLACE INTO boards (board, result, depth, routes, is_good) VALUES (?1, ?2, ?3, ?4, ?5)
-                ", &[
+                conn.execute(format!("
+                    INSERT OR REPLACE INTO {} (board, result, depth, routes, is_good) VALUES (?1, ?2, ?3, ?4, ?5)
+                ", table).as_str(), &[
                     &board.to_blob(),
                     &Null,
                     &Null,
@@ -175,9 +184,9 @@ impl BoardMap {
                     &state.is_good,
                 ]).unwrap();
             } else {
-                conn.execute("
-                    INSERT OR REPLACE INTO boards (board, result, depth, routes, is_good) VALUES (?1, ?2, ?3, ?4, ?5)
-                ", &[
+                conn.execute(format!("
+                    INSERT OR REPLACE INTO {} (board, result, depth, routes, is_good) VALUES (?1, ?2, ?3, ?4, ?5)
+                ", table).as_str(), &[
                     &board.to_blob(),
                     &(match state.result {
                         BoardResult::Lose => 0,
