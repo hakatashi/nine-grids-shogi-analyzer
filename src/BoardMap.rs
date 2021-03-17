@@ -4,6 +4,7 @@ extern crate rusqlite;
 use self::fnv::FnvHashMap;
 use self::rusqlite::Connection;
 use self::rusqlite::types::Null;
+use self::rusqlite::params;
 use ::Board::{Board, BoardResult};
 use ::Piece::Piece;
 use ::Grid::Grid;
@@ -134,19 +135,19 @@ impl BoardMap {
 
     pub fn write(&self, path: String) {
         let conn = Connection::open(path).unwrap();
-        conn.execute("
+        conn.execute_batch("
             CREATE TABLE IF NOT EXISTS boards (
                 board BLOB PRIMARY KEY NOT NULL,
                 result INTEGER,
                 depth INTEGER,
                 routes INTEGER,
                 is_good INTEGER
-            )
-        ", &[]).unwrap();
+            );
 
-        conn.query_row("PRAGMA journal_mode = OFF", &[], |_| {}).unwrap();
-        conn.execute("PRAGMA synchronous = OFF", &[]).unwrap();
-        conn.execute("BEGIN", &[]).unwrap();
+            PRAGMA journal_mod = OFF;
+            PRAGMA synchronous = OFF;
+            BEGIN;
+        ").unwrap();
 
         let mut count = 0;
         let mut percentage = 1;
@@ -167,7 +168,7 @@ impl BoardMap {
             if state.result == BoardResult::Unknown {
                 conn.execute("
                     INSERT OR REPLACE INTO boards (board, result, depth, routes, is_good) VALUES (?1, ?2, ?3, ?4, ?5)
-                ", &[
+                ", params![
                     &board.to_blob(),
                     &Null,
                     &Null,
@@ -177,7 +178,7 @@ impl BoardMap {
             } else {
                 conn.execute("
                     INSERT OR REPLACE INTO boards (board, result, depth, routes, is_good) VALUES (?1, ?2, ?3, ?4, ?5)
-                ", &[
+                ", params![
                     &board.to_blob(),
                     &(match state.result {
                         BoardResult::Lose => 0,
@@ -191,6 +192,6 @@ impl BoardMap {
             }
         }
 
-        conn.execute("COMMIT", &[]).unwrap();
+        conn.execute_batch("COMMIT").unwrap();
     }
 }

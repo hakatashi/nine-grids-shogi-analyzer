@@ -232,7 +232,7 @@ impl Board {
                     let target_y = y as i8 + piece_move.y;
 
                     // 移動先が盤外
-                    if !(0..3).contains(target_x) || !(0..3).contains(target_y) {
+                    if !(0..3).contains(&target_x) || !(0..3).contains(&target_y) {
                         continue;
                     }
 
