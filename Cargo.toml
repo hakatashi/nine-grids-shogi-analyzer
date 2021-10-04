@@ -9,7 +9,7 @@ integer-sqrt = "0.1.5"
 redis = "0.21.0"
 
 [dependencies.rusqlite]
-version = "0.25.3"
+version = "0.26.0"
 features = ["bundled"]
 
 [profile.bench]
