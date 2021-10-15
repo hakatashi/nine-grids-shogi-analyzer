@@ -6,7 +6,7 @@ authors = ["Koki Takahashi <hakatasiloving@gmail.com>"]
 [dependencies]
 fnv = "1.0.7"
 integer-sqrt = "0.1.5"
-redis = "0.21.0"
+redis = "0.21.3"
 
 [dependencies.rusqlite]
 version = "0.25.3"
