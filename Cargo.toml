@@ -1,3 +1,5 @@
+cargo-features = ["edition2021"]
+
 [package]
 name = "nine-grids-shogi-analyzer"
 version = "1.0.0"
