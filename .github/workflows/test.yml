@@ -8,15 +8,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-      - uses: actions-rs/toolchain@v1
+      - uses: actions-rust-lang/setup-rust-toolchain@v1
         with:
           toolchain: nightly-2024-09-20
-          override: true
-      - uses: actions-rs/cargo@v1
-        with:
-          command: run
-          args: --release --verbose 123
-      - uses: actions-rs/cargo@v1
-        with:
-          command: test
-          args: --verbose
+      - run: cargo run --release --verbose 123
+      - run: cargo test --verbose
