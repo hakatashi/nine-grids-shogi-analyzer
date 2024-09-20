@@ -1,5 +1,3 @@
-#![feature(non_ascii_idents)]
-
 extern crate nine_grids_shogi_analyzer;
 
 use nine_grids_shogi_analyzer::Board::{Board, BoardResult, PieceMove, Coord};
