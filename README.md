@@ -2,7 +2,7 @@
 
 ## Prerequisites
 
-* Rust nightly (nightly-2021-03-13 is tested)
+* Rust nightly (nightly-2024-09-20 is tested)
 
 ## Run
 
